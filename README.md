@@ -28,16 +28,13 @@ make build
 
 ### Run
 
-- Before running, you need to make sure your host project has a `./bind-mount` directory for binding mount with the Docker container.
-- Otherwise, you will get an error when you run the make command.
-
 ```bash
 ❯ make run
-docker run -it -v /your/local/path/linux-in-practice-2nd-docker/bind-mount:/linux-in-practice-2nd/bind-mount linux-in-practice-2nd-docker /bin/bash
-root@bd32c10233b6:/linux-in-practice-2nd# ls -la
+docker run -it -p 5050:5050 -v /your/local/path/linux-in-practice-2nd-docker:/linux-in-practice-2nd/bind-mounts linux-in-practice-2nd-docker /bin/bash
+root@934ea3fc9292:/linux-in-practice-2nd# ls -la
 total 60
-drwxr-xr-x 1 root root 4096 Jan  7 06:23 .
-drwxr-xr-x 1 root root 4096 Jan  7 06:23 ..
+drwxr-xr-x 1 root root 4096 Jan  7 09:40 .
+drwxr-xr-x 1 root root 4096 Jan  7 09:40 ..
 drwxr-xr-x 8 root root 4096 Jan  7 05:37 .git
 drwxr-xr-x 2 root root 4096 Jan  7 05:37 01-operating-system-overview
 drwxr-xr-x 2 root root 4096 Jan  7 05:37 02-process-management-1
@@ -51,5 +48,5 @@ drwxr-xr-x 3 root root 4096 Jan  7 05:37 10-virtualization
 drwxr-xr-x 2 root root 4096 Jan  7 05:37 12-cgroups
 -rw-r--r-- 1 root root 1072 Jan  7 05:37 LICENSE
 -rw-r--r-- 1 root root  681 Jan  7 05:37 README.md
-drwxr-xr-x 3 root root   96 Jan  7 06:04 bind-mount
+drwxr-xr-x 6 root root  192 Jan  7 09:37 bind-mounts
 ```

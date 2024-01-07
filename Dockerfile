@@ -4,6 +4,10 @@ FROM ubuntu:20.04
 # Disable interactive input when installing packages with apt-get install.
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Set Asia/Tokyo as the time zone that some packages to be installed later require.
+ENV TZ=Asia/Tokyo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Install packages required as described in the book.
 RUN apt-get update && apt-get install -y \
     binutils \
