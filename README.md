@@ -10,6 +10,7 @@ This repo is for building a Docker environment for learning the book `Linuxの�
   - [linuxのしくみ増補改訂版のサポート用](https://docs.google.com/spreadsheets/d/1viQfCGdVqVKITk7Z_EhGGTJfz6BjOkQYFOU3LBfmcv4/edit#gid=0)
 - Reference
   - [「［試して理解］Linux のしくみ【増補改訂版】」の実験環境を Docker で作成する方法と詰まったこと（M1Mac）](https://zenn.dev/msksgm/articles/20230814-linux-in-practice-2nd-docker)
+  - [Docker を使った [試して理解] Linuxの仕組みの為の環境構築](https://qiita.com/ken__8/items/19572e28d63091c1a8b9)
 
 ## Usage
 
