@@ -10,3 +10,46 @@ This repo is for building a Docker environment for learning the book `Linuxの�
   - [linuxのしくみ増補改訂版のサポート用](https://docs.google.com/spreadsheets/d/1viQfCGdVqVKITk7Z_EhGGTJfz6BjOkQYFOU3LBfmcv4/edit#gid=0)
 - Reference
   - [「［試して理解］Linux のしくみ【増補改訂版】」の実験環境を Docker で作成する方法と詰まったこと（M1Mac）](https://zenn.dev/msksgm/articles/20230814-linux-in-practice-2nd-docker)
+
+## Usage
+
+- You can use Makefile to build and run the Docker environment.
+
+### Build
+
+- FYI, it took about 5 minutes for my machine to build the Docker image first. (Although it was so long...)
+- After that, it usually takes few seconds to do that thanks to caching.
+- The size of the Docker image is about 1.7GB.
+
+```bash
+make build
+# Omit the output of the build process...
+```
+
+### Run
+
+- Before running, you need to make sure your host project has a `./bind-mount` directory for binding mount with the Docker container.
+- Otherwise, you will get an error when you run the make command.
+
+```bash
+❯ make run
+docker run -it -v /your/local/path/linux-in-practice-2nd-docker/bind-mount:/linux-in-practice-2nd/bind-mount linux-in-practice-2nd-docker /bin/bash
+root@bd32c10233b6:/linux-in-practice-2nd# ls -la
+total 60
+drwxr-xr-x 1 root root 4096 Jan  7 06:23 .
+drwxr-xr-x 1 root root 4096 Jan  7 06:23 ..
+drwxr-xr-x 8 root root 4096 Jan  7 05:37 .git
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 01-operating-system-overview
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 02-process-management-1
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 03-process-scheduler
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 04-memory-management
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 05-process-management-2
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 07-filesystem
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 08-storage-hierarchy
+drwxr-xr-x 4 root root 4096 Jan  7 05:37 09-block-layer
+drwxr-xr-x 3 root root 4096 Jan  7 05:37 10-virtualization
+drwxr-xr-x 2 root root 4096 Jan  7 05:37 12-cgroups
+-rw-r--r-- 1 root root 1072 Jan  7 05:37 LICENSE
+-rw-r--r-- 1 root root  681 Jan  7 05:37 README.md
+drwxr-xr-x 3 root root   96 Jan  7 06:04 bind-mount
+```
