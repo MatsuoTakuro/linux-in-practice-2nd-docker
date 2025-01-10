@@ -1,1 +1,5 @@
+
 *.jpg
+
+./linux-in-practice-2nd/04-memory-management/mmap
+./linux-in-practice-2nd/04-memory-management/segv
