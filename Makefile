@@ -1,7 +1,11 @@
 build: # Build docker image according to the description in the book and some customizations.
-	docker image build -t linux-in-practice-2nd-docker .
+	docker-compose -f compose.yml build
 
-run: # Run docker container mounting the current directory to `/linux-in-practice-2nd/bind-mounts` directory in the container.
-	docker run -it -p 5050:5050 -v $(PWD):/linux-in-practice-2nd/bind-mounts linux-in-practice-2nd-docker /bin/bash
+run: # Run docker container according to the description in the book and some customizations.
+	docker-compose -f compose.yml up -d
 
+in: # Enter the container.
+	docker exec -it linux-in-practice-container /bin/bash
 
+stop: # Stop the container.
+	docker-compose -f compose.yml down

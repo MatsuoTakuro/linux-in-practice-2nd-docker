@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     docker.io \
     containerd \
     libvirt-daemon-system \
+    curl \
     # For debugging (although not described in the book)
     strace \
     psmisc \
@@ -38,11 +39,13 @@ RUN adduser `id -un` libvirt
 RUN adduser `id -un` libvirt-qemu
 RUN adduser `id -un` kvm
 
-# Clone the sample code repository into the container.
-RUN git clone https://github.com/satoru-takeuchi/linux-in-practice-2nd.git
+# Install Starship without prompt
+RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
-# Move to the directory where the sample code is located.
-WORKDIR /linux-in-practice-2nd
+# Add Starship initialization to /etc/bash.bashrc for all users
+RUN echo 'eval "$(starship init bash)"' >> /etc/bash.bashrc
+
+WORKDIR /app
 
 # Reset the DEBIAN_FRONTEND environment variable
 ENV DEBIAN_FRONTEND=

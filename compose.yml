@@ -1,0 +1,11 @@
+services:
+  linux-in-practice:
+    build:
+      context: .
+    container_name: linux-in-practice-container
+    ports:
+      - "5050:5050"
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
