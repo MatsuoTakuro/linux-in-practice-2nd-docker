@@ -1,8 +1,9 @@
 
 *.jpg
 
-./linux-in-practice-2nd/03-process-scheduler/*.data
+# ch03
+linux-in-practice-2nd/03-process-scheduler/*.data
 
-./linux-in-practice-2nd/04-memory-management/mmap
-./linux-in-practice-2nd/04-memory-management/segv
-
+# ch04
+linux-in-practice-2nd/04-memory-management/mmap
+linux-in-practice-2nd/04-memory-management/segv
