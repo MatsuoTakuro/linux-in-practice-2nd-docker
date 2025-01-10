@@ -1,5 +1,8 @@
 
 *.jpg
 
+./linux-in-practice-2nd/03-process-scheduler/*.data
+
 ./linux-in-practice-2nd/04-memory-management/mmap
 ./linux-in-practice-2nd/04-memory-management/segv
+
