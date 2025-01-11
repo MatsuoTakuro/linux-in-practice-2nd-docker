@@ -14,4 +14,5 @@ elif pid == 0:
 	sys.exit(0)
 
 os.wait()
+# still prints 1000 because a forked child process has its own copy of data when writing to it (Copy on Write)
 print("子プロセス終了後のデータの値: {}".format(data))

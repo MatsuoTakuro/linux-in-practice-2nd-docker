@@ -1,0 +1,56 @@
+@startuml relationship
+!define ER_DIAGRAM
+
+entity "Process" as Process {
+    * ProcessID : int <<PK>>
+    --
+    Name : string
+    OtherAttributes : ...
+}
+
+entity "Virtual Address Space" as VirtualAddressSpace {
+    * VirtualSpaceID : int <<PK>>
+    --
+    ProcessID : int <<FK>>
+    OtherAttributes : ...
+}
+
+entity "Page Table" as PageTable {
+    * PageTableID : int <<PK>>
+    --
+    VirtualSpaceID : int <<FK>>
+    OtherAttributes : ...
+}
+
+entity "Page Table Entry (PTE)" as PTE {
+    * EntryID : int <<PK>>
+    --
+    PageTableID : int <<FK>>
+    Attributes : string
+    OtherAttributes : ...
+}
+
+entity "Virtual Page" as VirtualPage {
+    * VirtualPageID : int <<PK>>
+    --
+    EntryID : int <<FK>>
+    VirtualAddrRange : string
+    OtherAttributes : ...
+}
+
+entity "Physical Page" as PhysicalPage {
+    * PhysicalPageID : int <<PK>>
+    --
+    EntryID : int <<FK>>
+    PhysicalAddrRange : string
+    OtherAttributes : ...
+}
+
+
+Process             ||--|| VirtualAddressSpace
+VirtualAddressSpace ||--|| PageTable
+PageTable           ||--o{ PTE
+PTE                 ||--|| VirtualPage
+PTE                 ||--o| PhysicalPage : "Optional (e.g., swapped out pages)"
+
+@enduml
