@@ -7,3 +7,8 @@ linux-in-practice-2nd/03-process-scheduler/*.data
 # ch04
 linux-in-practice-2nd/04-memory-management/mmap
 linux-in-practice-2nd/04-memory-management/segv
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.pyc
+
