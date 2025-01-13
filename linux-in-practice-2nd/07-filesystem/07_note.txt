@@ -61,3 +61,6 @@ Swap:       1190340      519172      671168
               total        used        free      shared  buff/cache   available
 Mem:        2010468      973252      312004       19376      725212      850944
 Swap:       1190340      519172      671168
+
+❯ cat /sys/block/sda/dev
+8:0

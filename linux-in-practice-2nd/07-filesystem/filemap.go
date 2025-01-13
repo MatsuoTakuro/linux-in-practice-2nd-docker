@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+
+	catTestfile()
+
 	pid := os.Getpid()
 	fmt.Println("*** testfileのメモリマップ前のプロセスの仮想アドレス空間 ***")
 	command := exec.Command("cat", "/proc/"+strconv.Itoa(pid)+"/maps")
@@ -32,7 +35,7 @@ func main() {
 	}
 
 	fmt.Println("")
-	fmt.Printf("testfileをマップしたアドレス: %p\n", &data[0])
+	fmt.Printf("testfileをマップしたアドレス: %p\n", &data[0]) // the address of the first element of data
 	fmt.Println("")
 
 	fmt.Println("*** testfileのメモリマップ後のプロセスの仮想アドレス空間 ***")
@@ -43,9 +46,23 @@ func main() {
 		log.Fatal("catの実行に失敗しました")
 	}
 
+	fmt.Println("testfileの中身を書き換えます")
+
 	// マップしたファイルの中身を書き換える
 	replaceBytes := []byte("HELLO")
 	for i, _ := range data {
-		data[i] = replaceBytes[i]
+		data[i] = replaceBytes[i] // replace the content of data with replaceBytes byte by byte
+	}
+
+	catTestfile()
+}
+
+func catTestfile() {
+	fmt.Println("*** testfileの中身をcatで表示します ***")
+	command := exec.Command("cat", "testfile")
+	command.Stdout = os.Stdout
+	err := command.Run()
+	if err != nil {
+		log.Fatal("catの実行に失敗しました")
 	}
 }
