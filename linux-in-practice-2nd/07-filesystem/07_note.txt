@@ -1,0 +1,63 @@
+
+*** testfileの中身をcatで表示します ***
+hello
+*** testfileのメモリマップ前のプロセスの仮想アドレス空間 ***
+00400000-004ab000 r-xp 00000000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+004ab000-00584000 r--p 000ab000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+00584000-0059b000 rw-p 00184000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+0059b000-005b9000 rw-p 00000000 00:00 0
+c000000000-c004000000 rw-p 00000000 00:00 0
+7f0ca4a00000-7f0ca4c11000 rw-p 00000000 00:00 0
+7f0ca4e00000-7f0ca6e00000 rw-p 00000000 00:00 0
+7f0ca6e08000-7f0ca6ea8000 rw-p 00000000 00:00 0
+7f0ca6ea8000-7f0ca6eac000 r--p 00000000 00:00 0                          [vvar]
+7f0ca6eac000-7f0ca6eae000 r-xp 00000000 00:00 0                          [vdso]
+7ffee9737000-7ffee9758000 rw-p 00000000 00:00 0                          [stack]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+testfileをマップしたアドレス: 0x7f0ca6e07000
+
+*** testfileのメモリマップ後のプロセスの仮想アドレス空間 ***
+00400000-004ab000 r-xp 00000000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+004ab000-00584000 r--p 000ab000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+00584000-0059b000 rw-p 00184000 00:37 1467519                            /tmp/go-build809142887/b001/exe/filemap
+0059b000-005b9000 rw-p 00000000 00:00 0
+c000000000-c004000000 rw-p 00000000 00:00 0
+7f0ca4a00000-7f0ca4c11000 rw-p 00000000 00:00 0
+7f0ca4e00000-7f0ca6e00000 rw-p 00000000 00:00 0
+# 7f0ca6e07000-7f0ca6e08000 (4096 bytes) にtestfileがマップされている
+7f0ca6e07000-7f0ca6e08000 rw-s 00000000 00:22 294                        /app/linux-in-practice-2nd/07-filesystem/testfile
+7f0ca6e08000-7f0ca6ea8000 rw-p 00000000 00:00 0
+7f0ca6ea8000-7f0ca6eac000 r--p 00000000 00:00 0                          [vvar]
+7f0ca6eac000-7f0ca6eae000 r-xp 00000000 00:00 0                          [vdso]s
+7ffee9737000-7ffee9758000 rw-p 00000000 00:00 0                          [stack]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+testfileの中身を書き換えます
+*** testfileの中身をcatで表示します ***
+HELLO
+
+
+❯ mount | grep mnt
+nsfs on /run/snapd/ns/snap-store.mnt type nsfs (rw)
+tmpfs on /media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/07-filesystem/mnt type tmpfs (rw,relatime,size=1048576k,inode64)
+
+❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468     1030196       69348       19716      910924      794956
+Swap:       1190340      463660      726680
+
+sudo dd if=/dev/zero \
+  of=/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/07-filesystem/mnt/testfile \
+  bs=100M count=1
+
+❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468      965764      219924      121980      824780      755828
+Swap:       1190340      519172      671168
+
+❯ sudo umount mnt 
+
+❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468      973252      312004       19376      725212      850944
+Swap:       1190340      519172      671168

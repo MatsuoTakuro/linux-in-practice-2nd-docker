@@ -1,0 +1,61 @@
+
+✦ ❯ readelf -h pause
+ELF Header:
+…
+  Entry point address:           	0x401050
+…
+
+✦ ❯ readelf -S pause
+There are 31 section headers, starting at offset 0x3938:
+
+Section Headers:
+  [Nr] Name          	Type         	Address       	Offset
+   	Size          	EntSize      	Flags  Link  Info  Align
+…
+  [15] .text         	PROGBITS     	0000000000401050  00001050
+   	0000000000000175  0000000000000000  AX   	0 	0 	16
+…
+  [25] .data         	PROGBITS     	0000000000404020  00003020
+   	0000000000000010  0000000000000000  WA   	0 	0 	8
+…
+
+✦ ❯ cat /proc/11169/maps
+00400000-00401000 r--p 00000000 08:05 1227095                        	/home/taro/linux-in-practice-2nd/02-process-management-1/pause
+00401000-00402000 r-xp 00001000 08:05 1227095                        	/home/taro/linux-in-practice-2nd/02-process-management-1/pause
+00402000-00403000 r--p 00002000 08:05 1227095                        	/home/taro/linux-in-practice-2nd/02-process-management-1/pause
+00403000-00404000 r--p 00002000 08:05 1227095                        	/home/taro/linux-in-practice-2nd/02-process-management-1/pause
+00404000-00405000 rw-p 00003000 08:05 1227095                        	/home/taro/linux-in-practice-2nd/02-process-management-1/pause
+7f483cbb0000-7f483cbd2000 r--p 00000000 08:05 526547                 	/usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f483cbd2000-7f483cd4a000 r-xp 00022000 08:05 526547                 	/usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f483cd4a000-7f483cd98000 r--p 0019a000 08:05 526547                 	/usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f483cd98000-7f483cd9c000 r--p 001e7000 08:05 526547                 	/usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f483cd9c000-7f483cd9e000 rw-p 001eb000 08:05 526547                 	/usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f483cd9e000-7f483cda4000 rw-p 00000000 00:00 0
+7f483cdb6000-7f483cdb7000 r--p 00000000 08:05 526521                 	/usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f483cdb7000-7f483cdda000 r-xp 00001000 08:05 526521                 	/usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f483cdda000-7f483cde2000 r--p 00024000 08:05 526521                 	/usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f483cde3000-7f483cde4000 r--p 0002c000 08:05 526521                 	/usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f483cde4000-7f483cde5000 rw-p 0002d000 08:05 526521                 	/usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f483cde5000-7f483cde6000 rw-p 00000000 00:00 0
+7ffc5692c000-7ffc5694e000 rw-p 00000000 00:00 0                      	[stack]
+7ffc569f9000-7ffc569fd000 r--p 00000000 00:00 0                      	[vvar]
+7ffc569fd000-7ffc569ff000 r-xp 00000000 00:00 0                      	[vdso]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0              	[vsyscall]
+
+‘false’ command is used to return an exit status code (“1” by default) that indicates failure.
+
+1. $!
+Meaning: The process ID (PID) of the most recently started background process.
+- When you start a background job (using &), $! holds the PID of that process.
+
+2. $?
+Meaning: The exit status of the most recently executed command.
+- A command that runs successfully returns 0.
+- A command that fails returns a non-zero value.
+
+# on ubuntu
+ps ajx | grep -E 'bash|ps ajx|COMMAND'
+PPID     PID    PGID     SID TTY        TPGID STAT   UID   TIME COMMAND
+3277    4052    4052    4052 pts/5      58608 Ss    1000   0:00 /usr/bin/bash --init-file /snap/code/177/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+4052   58608   58608    4052 pts/5      58608 R+    1000   0:00 ps ajx
+4052   58609   58608    4052 pts/5      58608 S+    1000   0:00 grep --color=auto -E bash|ps ajx|COMMAND

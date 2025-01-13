@@ -1,0 +1,20 @@
+
+❯ ./cpuperf.sh 8
+[2024-12-21 16:15:57] Measurement 1 started.
+[2024-12-21 16:16:03] Measurement 1 completed. Elapsed time: 6.433420960s
+[2024-12-21 16:16:03] Measurement 2 started.
+[2024-12-21 16:16:15] Measurement 2 completed. Elapsed time: 11.714419101s
+[2024-12-21 16:16:15] Measurement 3 started.
+[2024-12-21 16:16:30] Measurement 3 completed. Elapsed time: 14.479307561s
+[2024-12-21 16:16:30] Measurement 4 started.
+[2024-12-21 16:16:50] Measurement 4 completed. Elapsed time: 20.770413339s
+[2024-12-21 16:16:50] Measurement 5 started.
+[2024-12-21 16:17:16] Measurement 5 completed. Elapsed time: 25.863297943s
+[2024-12-21 16:17:16] Measurement 6 started.
+[2024-12-21 16:17:44] Measurement 6 completed. Elapsed time: 28.030701696s
+[2024-12-21 16:17:44] Measurement 7 started.
+[2024-12-21 16:18:11] Measurement 7 completed. Elapsed time: 26.550802496s
+[2024-12-21 16:18:11] Measurement 8 started.
+[2024-12-21 16:18:43] Measurement 8 completed. Elapsed time: 32.312162852s
+./cpuperf.sh: line 77: unexpected EOF while looking for matching `"'
+./cpuperf.sh: line 80: syntax error: unexpected end of file
