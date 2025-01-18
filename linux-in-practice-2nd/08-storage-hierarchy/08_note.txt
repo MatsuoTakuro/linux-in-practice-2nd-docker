@@ -1,0 +1,102 @@
+⬢ [Docker] ❯ ls /sys/devices/system/cpu/cpu0/cache/index0/
+total 0
+drwxr-xr-x 2 root root    0 Jan 13 18:44 .
+drwxr-xr-x 6 root root    0 Jan 13 18:44 ..
+-r--r--r-- 1 root root 4096 Jan 13 18:44 coherency_line_size
+-r--r--r-- 1 root root 4096 Jan 13 18:44 id
+-r--r--r-- 1 root root 4096 Jan 13 18:44 level
+-r--r--r-- 1 root root 4096 Jan 13 18:44 number_of_sets
+-r--r--r-- 1 root root 4096 Jan 13 18:44 physical_line_partition
+-r--r--r-- 1 root root 4096 Jan 13 18:44 shared_cpu_list
+-r--r--r-- 1 root root 4096 Jan 13 18:44 shared_cpu_map
+-r--r--r-- 1 root root 4096 Jan 13 18:44 size
+-r--r--r-- 1 root root 4096 Jan 13 18:44 type
+-rw-r--r-- 1 root root 4096 Jan 13 18:44 uevent
+-r--r--r-- 1 root root 4096 Jan 13 18:44 ways_of_associativity
+
+⬢ [Docker] ❯ cat /sys/devices/system/cpu/cpu0/cache/index0
+level:1
+size:32K
+
+⬢ [Docker] ❯ cat /sys/devices/system/cpu/cpu0/cache/index1
+level:1
+size:32K
+
+⬢ [Docker] ❯ cat /sys/devices/system/cpu/cpu0/cache/index2
+level:2
+size:256K
+
+⬢ [Docker] ❯ cat /sys/devices/system/cpu/cpu0/cache/index3
+level:3
+size:4096K
+
+
+❯ dd if=/dev/zero of=testfile oflag=sync bs=1G count=1
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 10.08 s, 107 MB/s
+
+❯ dd if=/dev/zero of=testfile bs=1G count=1
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 6.0475 s, 178 MB/s
+
+linux-in-practice-2nd-docker/linux-in-practice-2nd/08-storage-hierarchy on  main took 8s 
+❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468      744304     1042440       15144      223724     1099680
+Swap:       1190340      795924      394416
+
+linux-in-practice-2nd-docker/linux-in-practice-2nd/08-storage-hierarchy on  main [!?⇡] via 🐹 v1.13.8 via 🐍 v3.8.10 
+❯ sudo su
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/08-storage-hierarchy# echo 3 > /proc/sys/vm/drop_caches
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/08-storage-hierarchy# free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468      698932     1140464       21592      171072     1140216
+Swap:       1190340      795668      394672
+
+❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        2010468      688544     1125716       15420      196208     1155392
+Swap:       1190340      795668      394672
+
+# buff/cache is reduced by 25MB after clearing the cache system-wide.
+
+# 1st run (read from storage device)
+❯ dd if=testfile of=/dev/null bs=1G count=1
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 2.2201 s, 484 MB/s
+
+# 2nd run (read from cache)
+❯ dd if=testfile of=/dev/null bs=1G count=1
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.919855 s, 1.2 GB/s
+
+why buff/cache on taro is some larger than root even though clearing cache system-widely was done by root?
+- The difference in buff/cache is due to user-specific activity after clearing the cache.
+- taro’s interactive shell accesses additional files, which leads to a higher cache value compared to root.
+- Cache behavior is system-wide, but user-triggered actions affect what gets cached.
+
+dd if=/dev/zero of=testfile bs=1G count=1 oflag=direct,sync
+
+⬢ [Docker] ❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        4008192      270320     3410140         704      327732     3524092
+Swap:       1048572           0     1048572
+
+root in app/linux-in-practice-2nd/08-storage-hierarchy on  main [!?⇡] via 🐹 v1.13.8 via 🐍 v3.8.10 
+⬢ [Docker] ❯ dd if=/dev/zero of=testfile bs=1G count=1 oflag=direct,sync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 26.1457 s, 41.1 MB/s
+
+root in app/linux-in-practice-2nd/08-storage-hierarchy on  main via 🐹 v1.13.8 via 🐍 v3.8.10 took 26s 
+⬢ [Docker] ❯ free
+              total        used        free      shared  buff/cache   available
+Mem:        4008192      284740     3401520         704      321932     3509824
+Swap:       1048572           0     1048572
+
+# with direct I/O, the data is written directly to the storage device without caching, which is slower than the default behavior.
+# but buff/cache does not increase after the operation, which means the data is not cached in memory.
