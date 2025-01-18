@@ -1,0 +1,59 @@
+fio --name test --readwrite=randread --filename testdata --filesize=100M --size=1M --bs=4K --output-format=json > fio_100M.json
+
+
+❯ lsblk 
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+loop0    7:0    0     4K  1 loop /snap/bare/5
+loop1    7:1    0 317.7M  1 loop /snap/code/177
+loop2    7:2    0  63.3M  1 loop /snap/core20/1828
+loop3    7:3    0   6.4M  1 loop /snap/curl/1754
+loop4    7:4    0  63.7M  1 loop /snap/core20/2434
+loop5    7:5    0 346.3M  1 loop /snap/gnome-3-38-2004/119
+loop6    7:6    0 349.7M  1 loop /snap/gnome-3-38-2004/143
+loop7    7:7    0    46M  1 loop /snap/snap-store/638
+loop8    7:8    0  44.3M  1 loop /snap/snapd/23258
+loop10   7:10   0  91.7M  1 loop /snap/gtk-common-themes/1535
+loop12   7:12   0  44.4M  1 loop /snap/snapd/23545
+sda      8:0    0    25G  0 disk 
+├─sda1   8:1    0   512M  0 part /boot/efi
+├─sda2   8:2    0     1K  0 part 
+└─sda5   8:5    0  24.5G  0 part /
+sr0     11:0    1  1024M  0 rom  
+
+# Lets use sda!
+❯ ls /dev | grep sda
+brw-rw----   1 root disk      8,   0 Jan 12 13:05 sda
+brw-rw----   1 root disk      8,   1 Jan 12 13:05 sda1
+brw-rw----   1 root disk      8,   2 Jan 12 13:05 sda2
+brw-rw----   1 root disk      8,   5 Jan 12 13:05 sda5
+
+❯ cat /sys/block/sda/queue/scheduler 
+[mq-deadline] none
+
+❯ cat /sys/block/sda/queue/read_ahead_kb 
+128
+
+
+# we can measure with ssd cuz we dont have nvme0n1 in virtual machine.
+❯ sudo ./measure.sh ssd.conf 
++ '[' 1 -ne 1 ']'
+++ id -u
++ '[' 0 -ne 0 ']'
++ CONFFILE=ssd.conf
++ . ssd.conf
+++ TYPE=SSD
+++ DEVICE_NAME=nvme0n1
+++ PART_NAME=nvme0n1p3
+++ DATA_DIR=./mnt-ssd
++ DATA_FILE=./mnt-ssd/data
++ DATA_FILE_SIZE=134217728
++ QUEUE_DIR=/sys/block/nvme0n1/queue
++ SCHED_FILE=/sys/block/nvme0n1/queue/scheduler
++ READ_AHEAD_KB_FILE=/sys/block/nvme0n1/queue/read_ahead_kb
++ '[' nvme0n1p3 = '' ']'
++ DEVICE_FILE=/dev/nvme0n1p3
++ '[' '!' -e ./mnt-ssd ']'
++ '[' '!' -e /dev/nvme0n1p3 ']'
++ echo 'デバイスファイル(/dev/nvme0n1p3)が存在しません'
+デバイスファイル(/dev/nvme0n1p3)が存在しません
++ exit 1

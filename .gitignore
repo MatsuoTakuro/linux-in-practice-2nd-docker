@@ -12,3 +12,9 @@ linux-in-practice-2nd/04-memory-management/segv
 **/__pycache__/
 **/*.pyc
 
+
+# ch09
+linux-in-practice-2nd/09-block-layer/HDD/*
+!linux-in-practice-2nd/09-block-layer/HDD/read.txt
+!linux-in-practice-2nd/09-block-layer/HDD/read_edited.txt
+

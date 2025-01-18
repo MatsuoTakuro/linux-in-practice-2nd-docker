@@ -79,24 +79,18 @@ why buff/cache on taro is some larger than root even though clearing cache syste
 - taro’s interactive shell accesses additional files, which leads to a higher cache value compared to root.
 - Cache behavior is system-wide, but user-triggered actions affect what gets cached.
 
-dd if=/dev/zero of=testfile bs=1G count=1 oflag=direct,sync
-
-⬢ [Docker] ❯ free
+❯ free
               total        used        free      shared  buff/cache   available
-Mem:        4008192      270320     3410140         704      327732     3524092
-Swap:       1048572           0     1048572
+Mem:        2010468      748844      515476       17428      746148     1086712
+Swap:       1190340      771976      418364
 
-root in app/linux-in-practice-2nd/08-storage-hierarchy on  main [!?⇡] via 🐹 v1.13.8 via 🐍 v3.8.10 
-⬢ [Docker] ❯ dd if=/dev/zero of=testfile bs=1G count=1 oflag=direct,sync
+❯ dd if=/dev/zero of=testfile bs=500M count=1 oflag=direct,sync
 1+0 records in
 1+0 records out
-1073741824 bytes (1.1 GB, 1.0 GiB) copied, 26.1457 s, 41.1 MB/s
+524288000 bytes (524 MB, 500 MiB) copied, 2.78805 s, 188 MB/s
 
-root in app/linux-in-practice-2nd/08-storage-hierarchy on  main via 🐹 v1.13.8 via 🐍 v3.8.10 took 26s 
-⬢ [Docker] ❯ free
+❯ free
               total        used        free      shared  buff/cache   available
-Mem:        4008192      284740     3401520         704      321932     3509824
-Swap:       1048572           0     1048572
-
-# with direct I/O, the data is written directly to the storage device without caching, which is slower than the default behavior.
-# but buff/cache does not increase after the operation, which means the data is not cached in memory.
+Mem:        2010468      708684      600688       17404      701096     1127152
+Swap:       1190340      787896      402444
+# buff/cache is not increased after writing to the file with O_DIRECT flag (rather decreased by 45MB...).
