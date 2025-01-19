@@ -1,0 +1,125 @@
+❯ ls -l /proc/$$/ns/pid
+lrwxrwxrwx 1 taro taro 0 Jan 19 15:54 /proc/4319/ns/pid -> 'pid:[4026531836]'
+
+# create a new PID namespace
+❯ sudo unshare --pid --fork --mount-proc bash
+[sudo] password for taro: 
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/11-container# echo $$
+1
+
+
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/11-container# ls -l /proc/1/ns/pid
+lrwxrwxrwx 1 root root 0 Jan 19 15:55 /proc/1/ns/pid -> 'pid:[4026532255]'
+
+
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker/linux-in-practice-2nd/11-container# ps ax
+    PID TTY      STAT   TIME COMMAND
+      1 pts/0    S      0:00 bash
+      9 pts/0    R+     0:00 ps ax
+
+(in another terminal)
+❯ pstree -p | grep unshare
+           |              |            |-code(4237)-+-bash(4319)---sudo(108680)---unshare(108696)---bash(108697)
+
+
+(in another terminal)
+❯ sudo ls -l /proc/108697/ns/pid
+[sudo] password for taro: 
+lrwxrwxrwx 1 root root 0 Jan 19 15:57 /proc/108697/ns/pid -> 'pid:[4026532255]'
+
+
+# create another PID namespace
+(in another terminal)
+❯ sudo unshare --pid --fork --mount-proc bash
+[sudo] password for taro: 
+root@howlinuxworks:/media/sf_shared/linux-in-practice-2nd-docker# ls -l /proc/1/ns/pid
+lrwxrwxrwx 1 root root 0 Jan 19 16:21 /proc/1/ns/pid -> 'pid:[4026532257]'
+
+
+(in another terminal)
+❯ pstree -p | grep unshare
+           |              |            |-code(4237)-+-bash(4319)---sudo(108680)---unshare(108696)---bash(108697)
+           |              |            |            |-bash(109449)---sudo(109678)---unshare(109694)---bash(109695)
+❯ sudo ls -l /proc/109695/ns/pid
+[sudo] password for taro: 
+lrwxrwxrwx 1 root root 0 Jan 19 16:18 /proc/109695/ns/pid -> 'pid:[4026532257]'
+
+
+
+
+
+---
+
+### **Root PID Namespace (4026531836)**
+
+```
+Root PID Namespace (4026531836)
+┌───────────────────────────────────────────────────┐
+│ PID Table                                         │
+│   ├─ ...                                          │
+│   ├─ 4319 (bash - Host bash shell)                │
+│   ├─ 108697 (bash - First unshare-created shell)  │
+│   ├─ 109695 (bash - Second unshare-created shell) │
+│   └─ ...                                          │
+└───────────────────────────────────────────────────┘
+```
+
+---
+
+### **First New PID Namespace (4026532255)**
+
+```
+First New PID Namespace (4026532255)
+┌──────────────────────────────────────────┐
+│ PID Table                                │
+│   ├─ 1 (bash - Isolated bash shell)      │
+│   └─ ...                                 │
+└──────────────────────────────────────────┘
+```
+
+---
+
+### **Second New PID Namespace (4026532257)**
+
+```
+Second New PID Namespace (4026532257)
+┌──────────────────────────────────────────┐
+│ PID Table                                │
+│   ├─ 1 (bash - Isolated bash shell)      │
+│   └─ ...                                 │
+└──────────────────────────────────────────┘
+```
+
+---
+
+### **全体のプロセスツリー**
+```
+code(4237)
+├─ bash(4319)
+│   └─ sudo(108680)
+│       └─ unshare(108696)
+│           └─ bash(108697)  # First New Namespace (4026532255)
+│
+└─ bash(109449)
+    └─ sudo(109678)
+        └─ unshare(109694)
+            └─ bash(109695)  # Second New Namespace (4026532257)
+```
+
+---
+
+❯ ps ax | grep bash
+# 4319 is the root bash shell
+   4319 pts/0    Ss     0:19 /usr/bin/bash --init-file /snap/code/177/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 108680 pts/0    S      0:00 sudo unshare --pid --fork --mount-proc bash
+ 108696 pts/0    S      0:00 unshare --pid --fork --mount-proc bash
+#  108697 is the first unshare-created bash shell
+ 108697 pts/0    S+     0:00 bash
+ 108916 pts/1    Ss+    0:00 /usr/bin/bash --init-file /snap/code/177/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 109449 pts/2    Ss     0:00 /usr/bin/bash --init-file /snap/code/177/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 109678 pts/2    S      0:00 sudo unshare --pid --fork --mount-proc bash
+ 109694 pts/2    S      0:00 unshare --pid --fork --mount-proc bash
+#  109695 is the second unshare-created bash shell
+ 109695 pts/2    S+     0:00 bash
+ 109744 pts/3    Ss     0:00 /usr/bin/bash --init-file /snap/code/177/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 110522 pts/3    S+     0:00 grep --color=auto bash

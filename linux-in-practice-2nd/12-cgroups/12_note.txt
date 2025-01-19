@@ -1,0 +1,68 @@
+❯ ls /sys/fs/cgroup/
+total 0
+drwxr-xr-x 16 root root 400 Jan 10 22:32 .
+drwxr-xr-x  9 root root   0 Jan 10 22:32 ..
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 blkio
+lrwxrwxrwx  1 root root  11 Jan 10 22:32 cpu -> cpu,cpuacct
+lrwxrwxrwx  1 root root  11 Jan 10 22:32 cpuacct -> cpu,cpuacct
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 cpu,cpuacct
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 cpuset
+dr-xr-xr-x  7 root root   0 Jan 10 22:32 devices
+dr-xr-xr-x  3 root root   0 Jan 10 22:32 freezer
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 hugetlb
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 memory
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 misc
+lrwxrwxrwx  1 root root  16 Jan 10 22:32 net_cls -> net_cls,net_prio
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 net_cls,net_prio
+lrwxrwxrwx  1 root root  16 Jan 10 22:32 net_prio -> net_cls,net_prio
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 perf_event
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 pids
+dr-xr-xr-x  2 root root   0 Jan 10 22:32 rdma
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 systemd
+dr-xr-xr-x  6 root root   0 Jan 10 22:32 unified
+
+
+mkdir /sys/fs/cgroup/cpu/test # `test`という名前のグループを作る
+
+❯ cat /sys/fs/cgroup/cpu/test/cpu.cfs_period_us 
+100000
+
+linux-in-practice-2nd-docker/linux-in-practice-2nd/12-cgroups on  main [!?] via 🐍 v3.8.10 
+❯ cat /sys/fs/cgroup/cpu/test/cpu.cfs_quota_us 
+-1
+
+✦ ❯ sudo echo 112508 > /sys/fs/cgroup/cpu/test/tasks 
+bash: /sys/fs/cgroup/cpu/test/tasks: Permission denied
+
+echo 112508 | sudo tee /sys/fs/cgroup/cpu/test/tasks > /dev/null
+
+✦ ❯ top -b -n 1 | head
+top - 23:20:15 up 16:53,  1 user,  load average: 1.59, 0.98, 0.62
+Tasks: 220 total,   2 running, 218 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 20.0 us,  2.9 sy,  0.0 ni, 77.1 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   1963.3 total,    150.6 free,    759.8 used,   1053.0 buff/cache
+MiB Swap:   1162.4 total,    461.3 free,    701.2 used.   1026.0 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+# CPU使用率が85%になっている
+ 113402 taro      20   0   13068   8524   5192 R  85.0   0.4   0:55.55 inf-loop.py
+   4170 taro      20   0 1161.4g 226592  66316 S  10.0  11.3  49:26.15 code
+     14 root      20   0       0      0      0 I   5.0   0.0   1:35.74 rcu_sched
+
+
+# 50%のCPU時間を使えるようにする
+echo 50000 | sudo tee /sys/fs/cgroup/cpu/test/cpu.cfs_quota_us > /dev/null
+
+✦ ❯ top -b -n 1 | head
+top - 23:22:53 up 16:56,  1 user,  load average: 2.22, 1.35, 0.82
+Tasks: 220 total,   3 running, 217 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 23.1 us,  7.7 sy,  0.0 ni, 69.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   1963.3 total,    139.6 free,    766.9 used,   1056.9 buff/cache
+MiB Swap:   1162.4 total,    465.3 free,    697.2 used.   1018.9 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+# CPU使用率が50%になっている
+ 113402 taro      20   0   13068   8524   5192 R  52.9   0.4   3:25.65 inf-loop.py
+   4170 taro      20   0 1161.4g 237036  65944 R  47.1  11.8  49:51.63 code
+   4146 taro      20   0   32.4g  14536  12164 S  11.8   0.7  11:39.39 code
+
