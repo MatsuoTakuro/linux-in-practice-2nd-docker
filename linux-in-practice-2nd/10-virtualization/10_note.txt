@@ -1,0 +1,138 @@
+egrep -c '^flags.*(vmx|svm)' /proc/cpuinfo
+
+
+# in virtualbox, virtualization is disabled by default
+❯ egrep -c '^flags.*(vmx|svm)' /proc/cpuinfo
+0
+
+
+virt-install --name ubuntu2004 --vcpus 1 --cpuset=0 --memory 8192 --os-variant ubuntu20.04 --graphics none --extra-args 'console=ttyS0 --- console=ttyS0' --location http://us.archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/
+
+⬢ [Docker] ❯ virt-install --name ubuntu2004 --vcpus 1 --cpuset=0 --memory 8192 --os-variant ubuntu20.04 --graphi
+s none --extra-args 'console=ttyS0 --- console=ttyS0' --location http://us.archive.ubuntu.com/ubuntu/dists/focal/main
+/installer-amd64/
+ERROR    Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+
+❯ sudo virt-install --name ubuntu2004 --vcpus 1 --cpuset=0 --memory 8192 --os-variant ubuntu20.04 --graphics none --extra-args 'console=ttyS0 --- console=ttyS0' --location http://us.archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/
+[sudo] password for taro:  
+WARNING  KVM acceleration not available, using 'qemu'
+WARNING  Using legacy d-i based installer, that has been deprecated and will be removed in the future. https://discourse.ubuntu.com/c/server
+Using ubuntu20.04 default --disk size=25
+WARNING  The requested volume capacity will exceed the available pool space when the volume is fully allocated. (25600 M requested capacity > 11251 M available)
+ERROR    The requested volume capacity will exceed the available pool space when the volume is fully allocated. (25600 M requested capacity > 11251 M available) (Use --check disk_size=off or --check all=off to override)
+
+
+
+---
+仮想マシン起動前後のメモリ使用量の計算
+
+- a (カーネルの仮想マシン管理用メモリ)
+- b (`qemu-system-x86` の仮想マシン管理用メモリ)
+- c (`qemu-system-x86` の仮想マシンのメモリ)
+- d (ページキャッシュに使用されたメモリ)
+
+### 前提データ
+#### 仮想マシン起動前
+```
+$ free
+Mem:       15359360      395684    14725912        1628      237800     14609944
+```
+
+#### 仮想マシン起動後
+```
+$ free
+Mem:       15359360     1180680    13525156        1680      653524     13905104
+```
+
+#### `ps` コマンド
+```
+$ ps -eo pid,comm,rss
+PID COMMAND              RSS
+...
+5439 qemu-system-x86   763312
+...
+```
+
+#### ゲストOS内
+```
+$ free
+Mem:        8153372      110056     7839124         768      204192      7805376
+```
+
+---
+
+### 各項目の再計算
+
+#### 1. 仮想マシン全体のメモリ消費量 (a + b + c)
+```
+used: 1180680 - 395684 = 784996 KB
+```
+仮想マシン全体のメモリ消費量は **784996 KB**。
+
+---
+
+#### 2. ページキャッシュのメモリ消費量 (d)
+```
+buff/cache: 653524 - 237800 = 415724 KB
+```
+ページキャッシュに使用されたメモリ量は **415724 KB**。
+
+---
+
+#### 3. `qemu-system-x86` のRSSから計算 (b + c)
+```
+RSS: 763312 KB
+```
+`qemu-system-x86` が使用するメモリの合計は **763312 KB**。
+
+---
+
+#### 4. カーネルの仮想マシン管理用メモリ (a)
+```
+a = (a + b + c) - (b + c)
+a = 784996 - 763312 = 21684 KB
+```
+カーネルが使用している仮想マシン管理用メモリ量は **21684 KB**。
+
+---
+
+#### 5. ゲストOSの使用メモリ (c)
+```
+ゲストOSの使用メモリ: used + buff/cache
+c = 110056 + 204192 = 314248 KB
+```
+ゲストOSが使用しているメモリは **314248 KB**。
+
+---
+
+#### 6. `qemu-system-x86` の仮想マシン管理用メモリ (b)
+```
+b = RSS - c
+b = 763312 - 314248 = 449064 KB
+```
+`qemu-system-x86` の仮想マシン管理用メモリは **449064 KB**。
+
+---
+
+### 結果
+以下の値が算出されました：
+
+- **a (カーネルの仮想マシン管理用メモリ)**:
+  21684  KB (MiB  21.15)
+- **b (`qemu-system-x86` の仮想マシン管理用メモリ)**:
+  449064 KB (MiB 438.52)
+- **c (`qemu-system-x86` の仮想マシンのメモリ)**:
+  314248 KB (MiB 306.88)
+- **d (ページキャッシュに使用されたメモリ)**:
+  415724 KB (MiB 405.68)
+
+---
+
+### 検算
+仮想マシン全体のメモリ使用量 `(a + b + c)` を再確認：
+```
+a + b + c = 21684 + 449064 + 314248 = 784996 KB
+```
+この値は、仮想マシン起動後の `used` 増加分 (784996 KB) と一致します。
+
+---
